@@ -3,7 +3,7 @@
 
 # Project configuration
 project_name: n8n
-environment: production
+deployment_environment: production
 
 # System settings
 timezone: America/New_York

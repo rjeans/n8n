@@ -28,7 +28,7 @@
           ========================================
           Target Host: {{ inventory_hostname }}
           IP Address: {{ ansible_host }}
-          Environment: {{ environment }}
+          Environment: {{ deployment_environment }}
           n8n Host: {{ n8n_host }}
           ========================================
       tags: [always]
