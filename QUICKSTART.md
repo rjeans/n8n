@@ -172,35 +172,6 @@ curl -I https://n8n.yourdomain.com
 
 ---
 
-## Migration from K8s (Optional)
-
-### On K8s Cluster
-
-```bash
-cd migration
-./export-k8s-data.sh [namespace]
-
-# Transfer to GCP
-scp n8n_k8s_export_*.tar.gz ubuntu@<GCP-IP>:~/
-```
-
-### On GCP Instance
-
-```bash
-# Extract
-tar -xzf n8n_k8s_export_*.tar.gz
-
-# CRITICAL: Update .env with OLD encryption key
-nano ~/n8n/docker/.env
-# N8N_ENCRYPTION_KEY=<key-from-export>
-
-# Run migration
-cd ~/n8n/scripts
-./migrate-from-k8s.sh ~/n8n_k8s_export_*
-```
-
----
-
 ## Post-Deployment
 
 ### Setup Backups
@@ -308,7 +279,7 @@ See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for detailed solutions.
 
 - **Full Setup Guide**: [docs/SETUP.md](docs/SETUP.md)
 - **Troubleshooting**: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
-- **Migration Guide**: [migration/README.md](migration/README.md)
+- **Security Guide**: [docs/SECURITY.md](docs/SECURITY.md)
 - **Roadmap**: [ROADMAP.md](ROADMAP.md)
 
 ---

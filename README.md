@@ -67,9 +67,6 @@ This repository contains all the infrastructure-as-code and deployment automatio
 │   ├── backup.sh               # Backup automation
 │   ├── migrate-from-k8s.sh     # Migration helper from K8s
 │   └── setup-cloudflared.sh    # Cloudflare Tunnel setup
-├── migration/
-│   ├── README.md               # Migration guide
-│   └── export-k8s-data.sh      # Export data from K8s cluster
 └── docs/
     ├── SETUP.md                # Complete setup instructions
     └── TROUBLESHOOTING.md      # Common issues and solutions
@@ -196,27 +193,12 @@ cd scripts
 ./setup-cloudflared.sh
 ```
 
-### 6. Migrate from K8s (Optional)
-
-```bash
-# On your local machine with K8s access
-cd migration
-./export-k8s-data.sh
-
-# Transfer data to GCP instance
-# Follow migration/README.md for detailed steps
-
-# On GCP instance
-cd scripts
-./migrate-from-k8s.sh
-```
-
 ## Documentation
 
 - [ROADMAP.md](ROADMAP.md) - Implementation roadmap and progress tracking
 - [docs/SETUP.md](docs/SETUP.md) - Detailed setup instructions
 - [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Common issues and solutions
-- [migration/README.md](migration/README.md) - Step-by-step migration guide
+- [docs/SECURITY.md](docs/SECURITY.md) - Security hardening and best practices
 
 ## Configuration
 
