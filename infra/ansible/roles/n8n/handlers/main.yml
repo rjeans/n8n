@@ -1,0 +1,7 @@
+---
+# n8n role handlers
+
+- name: restart n8n stack
+  command: docker compose up -d
+  args:
+    chdir: "{{ n8n_app_dir }}"

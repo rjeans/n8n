@@ -1,0 +1,18 @@
+# Ansible Inventory for n8n GCP Deployment
+#
+# Copy this file to inventory.ini and update with your details:
+#   cp inventory.ini.example inventory.ini
+#
+# Get instance IP from Terraform:
+#   cd ../terraform && terraform output external_ip
+
+[n8n_servers]
+# Update this with your actual GCP instance IP
+n8n-server ansible_host=YOUR_GCP_INSTANCE_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[n8n_servers:vars]
+# Python interpreter (Ubuntu 22.04 uses python3)
+ansible_python_interpreter=/usr/bin/python3
+
+# SSH settings
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'

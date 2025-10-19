@@ -1,0 +1,30 @@
+---
+# Ansible Vault Example
+#
+# This file shows the structure for storing sensitive variables
+#
+# To create an encrypted vault file:
+#   ansible-vault create vault.yml
+#
+# To edit the vault:
+#   ansible-vault edit vault.yml
+#
+# To use with playbook:
+#   ansible-playbook playbook.yml --ask-vault-pass
+#   or
+#   ansible-playbook playbook.yml --vault-password-file ~/.vault_pass.txt
+
+# n8n Authentication
+n8n_basic_auth_password: "your-secure-password-here"
+
+# n8n Encryption Key (CRITICAL!)
+# Generate with: openssl rand -base64 32
+# If migrating, use the SAME key from your old instance!
+n8n_encryption_key: "your-32-character-encryption-key-here"
+
+# PostgreSQL Password
+postgres_password: "your-postgres-password-here"
+
+# Cloudflare Tunnel Token
+# Get from: https://one.dash.cloudflare.com/ -> Access -> Tunnels
+cloudflare_tunnel_token: "your-cloudflare-tunnel-token-here"

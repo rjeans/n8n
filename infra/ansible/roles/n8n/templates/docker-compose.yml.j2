@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:{{ postgres_version }}
+    container_name: n8n-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: {{ postgres_user }}
+      POSTGRES_PASSWORD: {{ postgres_password }}
+      POSTGRES_DB: {{ postgres_db }}
+    volumes:
+      - {{ postgres_data_dir }}:/var/lib/postgresql/data
+    networks:
+      - n8n-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U {{ postgres_user }} -d {{ postgres_db }}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      com.centurylinklabs.watchtower.enable: "false"
+
+  # n8n Workflow Automation
+  n8n:
+    image: n8nio/n8n:{{ n8n_version }}
+    container_name: n8n
+    restart: unless-stopped
+    environment:
+      # Database Configuration
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: {{ postgres_db }}
+      DB_POSTGRESDB_USER: {{ postgres_user }}
+      DB_POSTGRESDB_PASSWORD: {{ postgres_password }}
+
+      # n8n Configuration
+      N8N_HOST: {{ n8n_host }}
+      N8N_PORT: {{ n8n_port }}
+      N8N_PROTOCOL: {{ n8n_protocol }}
+      WEBHOOK_URL: {{ n8n_protocol }}://{{ n8n_host }}/
+
+      # Security
+      N8N_BASIC_AUTH_ACTIVE: {{ n8n_basic_auth_active | lower }}
+      N8N_BASIC_AUTH_USER: {{ n8n_basic_auth_user }}
+      N8N_BASIC_AUTH_PASSWORD: {{ n8n_basic_auth_password }}
+      N8N_ENCRYPTION_KEY: {{ n8n_encryption_key }}
+
+      # Timezone
+      GENERIC_TIMEZONE: {{ timezone }}
+      TZ: {{ timezone }}
+
+      # Execution Configuration
+      EXECUTIONS_PROCESS: {{ n8n_executions_process }}
+      EXECUTIONS_MODE: {{ n8n_executions_mode }}
+      EXECUTIONS_DATA_SAVE_ON_ERROR: {{ n8n_executions_data_save_on_error }}
+      EXECUTIONS_DATA_SAVE_ON_SUCCESS: {{ n8n_executions_data_save_on_success }}
+      EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS: {{ n8n_executions_data_save_manual | lower }}
+      EXECUTIONS_DATA_PRUNE: {{ n8n_executions_data_prune | lower }}
+      EXECUTIONS_DATA_MAX_AGE: {{ n8n_executions_data_max_age }}
+
+      # Logging
+      N8N_LOG_LEVEL: {{ n8n_log_level }}
+      N8N_LOG_OUTPUT: {{ n8n_log_output }}
+
+      # Additional Settings
+      N8N_PERSONALIZATION_ENABLED: {{ n8n_personalization_enabled | lower }}
+      N8N_DIAGNOSTICS_ENABLED: {{ n8n_diagnostics_enabled | lower }}
+      N8N_VERSION_NOTIFICATIONS_ENABLED: {{ n8n_version_notifications_enabled | lower }}
+
+    ports:
+      - "127.0.0.1:{{ n8n_port }}:{{ n8n_port }}"
+    volumes:
+      - {{ n8n_data_dir }}:/home/node/.n8n
+      - {{ backup_dir }}:/backup
+    networks:
+      - n8n-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:{{ n8n_port }}/healthz || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      com.centurylinklabs.watchtower.enable: "{{ 'true' if watchtower_enabled else 'false' }}"
+
+  # Cloudflare Tunnel for secure ingress
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: {{ cloudflare_tunnel_token }}
+    networks:
+      - n8n-network
+    depends_on:
+      - n8n
+    healthcheck:
+      test: ['CMD-SHELL', 'cloudflared tunnel info || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      com.centurylinklabs.watchtower.enable: "{{ 'true' if watchtower_enabled else 'false' }}"
+
+{% if watchtower_enabled %}
+  # Watchtower for automatic updates
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_CLEANUP: "{{ 'true' if watchtower_cleanup else 'false' }}"
+      WATCHTOWER_SCHEDULE: "{{ watchtower_schedule }}"
+      WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_INCLUDE_RESTARTING: "true"
+      WATCHTOWER_INCLUDE_STOPPED: "false"
+    labels:
+      com.centurylinklabs.watchtower.enable: "false"
+{% endif %}
+
+networks:
+  n8n-network:
+    driver: bridge
+    name: n8n-network

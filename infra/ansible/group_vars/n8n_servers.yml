@@ -1,0 +1,45 @@
+---
+# Variables specific to n8n servers
+#
+# IMPORTANT: This file contains sensitive defaults
+# Override these in vault.yml or pass as extra vars
+
+# n8n authentication
+n8n_basic_auth_active: true
+n8n_basic_auth_user: admin
+# n8n_basic_auth_password: CHANGE_THIS_SECURE_PASSWORD
+
+# n8n encryption key (CRITICAL - must be consistent!)
+# Generate with: openssl rand -base64 32
+# If migrating, use the SAME key from your old instance!
+# n8n_encryption_key: CHANGE_THIS_32_CHAR_ENCRYPTION_KEY
+
+# PostgreSQL password
+# postgres_password: CHANGE_THIS_SECURE_PASSWORD
+
+# Cloudflare Tunnel token
+# Get this from Cloudflare Zero Trust Dashboard
+# cloudflare_tunnel_token: YOUR_CLOUDFLARE_TUNNEL_TOKEN
+
+# n8n execution settings
+n8n_executions_process: main
+n8n_executions_mode: regular
+n8n_executions_data_save_on_error: all
+n8n_executions_data_save_on_success: all
+n8n_executions_data_save_manual: true
+n8n_executions_data_prune: true
+n8n_executions_data_max_age: 168  # 7 days in hours
+
+# Logging
+n8n_log_level: info
+n8n_log_output: console
+
+# Features
+n8n_personalization_enabled: true
+n8n_diagnostics_enabled: false
+n8n_version_notifications_enabled: true
+
+# Watchtower (auto-updates)
+watchtower_enabled: false
+watchtower_schedule: "0 0 3 * * *"  # 3 AM daily
+watchtower_cleanup: true

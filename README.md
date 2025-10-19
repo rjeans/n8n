@@ -31,6 +31,7 @@ This repository contains all the infrastructure-as-code and deployment automatio
 ### Key Features
 
 - **Infrastructure as Code**: Complete Terraform configuration for GCP provisioning
+- **Automated Provisioning**: Ansible playbooks for server configuration and deployment
 - **Container Orchestration**: Docker Compose for simple, reliable deployments
 - **Secure Ingress**: Cloudflare Tunnel (no exposed ports, no firewall management)
 - **Free Tier Eligible**: Uses GCP e2-micro instance (within free tier limits)
@@ -49,8 +50,12 @@ This repository contains all the infrastructure-as-code and deployment automatio
 │   │   ├── variables.tf        # Input variables
 │   │   ├── outputs.tf          # Output values
 │   │   └── terraform.tfvars.example  # Example variables file
-│   └── ansible/                # Optional server configuration automation
-│       └── playbook.yml        # Ansible playbook for server setup
+│   └── ansible/                # Ansible server configuration automation
+│       ├── playbook.yml        # Main deployment playbook
+│       ├── inventory.ini       # Server inventory
+│       ├── ansible.cfg         # Ansible configuration
+│       ├── roles/              # Ansible roles (common, docker, n8n)
+│       └── group_vars/         # Variable configuration
 ├── docker/
 │   ├── docker-compose.yml      # n8n stack definition
 │   ├── .env.example            # Environment variables template
@@ -77,7 +82,7 @@ This repository contains all the infrastructure-as-code and deployment automatio
 - Google Cloud Platform account
 - `gcloud` CLI installed and configured
 - Terraform >= 1.5.0
-- Docker and Docker Compose (for local testing)
+- Ansible >= 2.9 (optional, for automated provisioning)
 - Cloudflare account with domain
 - Access to existing n8n K8s cluster (for migration)
 
@@ -142,6 +147,29 @@ terraform apply
 ```
 
 ### 4. Deploy n8n Stack
+
+**Option A: Automated with Ansible (Recommended)**
+
+```bash
+# Install Ansible
+pip3 install ansible
+
+# Configure deployment
+cd infra/ansible
+cp inventory.ini.example inventory.ini
+# Edit inventory.ini with your instance IP
+
+# Create vault for secrets
+ansible-vault create vault.yml
+# Add: n8n_encryption_key, postgres_password, cloudflare_tunnel_token, etc.
+
+# Deploy everything
+ansible-playbook playbook.yml --ask-vault-pass
+```
+
+See [infra/ansible/README.md](infra/ansible/README.md) for detailed Ansible documentation.
+
+**Option B: Manual Deployment**
 
 ```bash
 # SSH to the instance (output from Terraform)

@@ -1,0 +1,115 @@
+---
+# n8n GCP Deployment Playbook
+#
+# This playbook provisions a GCP instance for n8n deployment
+#
+# Prerequisites:
+# - GCP instance created and accessible
+# - SSH key configured
+# - Cloudflare Tunnel token obtained
+# - inventory.ini updated with instance IP
+#
+# Usage:
+#   ansible-playbook playbook.yml
+#   ansible-playbook playbook.yml --tags deploy
+#   ansible-playbook playbook.yml --tags backup
+
+- name: Deploy n8n to GCP
+  hosts: n8n_servers
+  become: yes
+  gather_facts: yes
+
+  pre_tasks:
+    - name: Display deployment information
+      debug:
+        msg: |
+          ========================================
+          n8n GCP Deployment
+          ========================================
+          Target Host: {{ inventory_hostname }}
+          IP Address: {{ ansible_host }}
+          Environment: {{ environment }}
+          n8n Host: {{ n8n_host }}
+          ========================================
+      tags: [always]
+
+    - name: Verify required variables are set
+      assert:
+        that:
+          - n8n_encryption_key is defined
+          - n8n_encryption_key != 'CHANGE_THIS_32_CHAR_ENCRYPTION_KEY'
+          - postgres_password is defined
+          - postgres_password != 'CHANGE_THIS_SECURE_PASSWORD'
+          - n8n_basic_auth_password is defined
+          - n8n_basic_auth_password != 'CHANGE_THIS_SECURE_PASSWORD'
+          - cloudflare_tunnel_token is defined
+          - cloudflare_tunnel_token != 'YOUR_CLOUDFLARE_TUNNEL_TOKEN'
+        fail_msg: "Required variables are not set. Please configure group_vars/n8n_servers.yml or use ansible-vault"
+        success_msg: "All required variables are configured"
+      tags: [always]
+
+  roles:
+    - role: common
+      tags: [common, system]
+
+    - role: docker
+      tags: [docker]
+
+    - role: n8n
+      tags: [n8n, deploy]
+
+  post_tasks:
+    - name: Display deployment summary
+      debug:
+        msg: |
+          ========================================
+          Deployment Complete!
+          ========================================
+
+          n8n is now accessible at:
+          https://{{ n8n_host }}
+
+          Login credentials:
+          Username: {{ n8n_basic_auth_user }}
+          Password: {{ n8n_basic_auth_password }}
+
+          Container status:
+
+      tags: [always]
+
+    - name: Get final container status
+      command: docker compose ps
+      args:
+        chdir: "{{ n8n_app_dir }}"
+      register: final_status
+      changed_when: false
+      tags: [always]
+
+    - name: Display container status
+      debug:
+        msg: "{{ final_status.stdout_lines }}"
+      tags: [always]
+
+    - name: Display next steps
+      debug:
+        msg: |
+          ========================================
+          Next Steps:
+          ========================================
+
+          1. Verify n8n is accessible: https://{{ n8n_host }}
+          2. Login and test a workflow
+          3. Setup backup verification:
+             sudo /usr/local/bin/n8n-backup
+          4. Monitor logs:
+             cd {{ n8n_app_dir }}
+             docker compose logs -f
+
+          Useful commands:
+          - Check status: docker compose ps
+          - View logs: docker compose logs -f
+          - Restart: docker compose restart
+          - Backup: sudo /usr/local/bin/n8n-backup
+
+          ========================================
+      tags: [always]

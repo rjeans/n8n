@@ -57,7 +57,38 @@ terraform output external_ip
 
 ---
 
-## Step 2: Server Setup (15 min)
+## Step 2: Deploy with Ansible (5 min - RECOMMENDED)
+
+```bash
+# Install Ansible
+pip3 install ansible
+
+# Configure inventory
+cd infra/ansible
+cp inventory.ini.example inventory.ini
+nano inventory.ini  # Add your instance IP from terraform output
+
+# Create vault for secrets
+ansible-vault create vault.yml
+# Add your secrets (see vault.yml.example for structure):
+#   n8n_encryption_key: $(openssl rand -base64 32)
+#   postgres_password: <secure-password>
+#   n8n_basic_auth_password: <secure-password>
+#   cloudflare_tunnel_token: <your-token>
+
+# Deploy everything (system setup, Docker, n8n, backups)
+ansible-playbook playbook.yml --ask-vault-pass
+
+# Skip to Step 5 - Verify
+```
+
+See [infra/ansible/README.md](infra/ansible/README.md) for details.
+
+---
+
+## Step 3: Manual Deployment (Alternative to Ansible)
+
+**Only if not using Ansible above**
 
 ```bash
 # SSH to instance
@@ -88,14 +119,6 @@ sudo mkdir -p /mnt/data/{n8n,postgres,backups}
 sudo chown -R $USER:$USER /mnt/data/n8n /mnt/data/backups
 sudo chown -R 999:999 /mnt/data/postgres
 sudo chmod 700 /mnt/data/postgres
-```
-
----
-
-## Step 3: Deploy n8n (5 min)
-
-```bash
-cd ~/n8n/docker
 
 # Start PostgreSQL and n8n
 docker compose up -d postgres n8n
@@ -107,7 +130,7 @@ docker compose logs -f
 
 ---
 
-## Step 4: Cloudflare Tunnel (10 min)
+## Step 4: Cloudflare Tunnel (if not using Ansible - 10 min)
 
 ```bash
 # 1. Go to: https://one.dash.cloudflare.com/
@@ -262,8 +285,9 @@ See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for detailed solutions.
 
 ## Estimated Time
 
-- Fresh deployment: **45 minutes**
-- With migration: **2-3 hours**
+- **With Ansible**: 20-30 minutes (recommended)
+- **Manual deployment**: 45 minutes
+- **With migration**: 2-3 hours
 - Plus 24h monitoring
 
 ---

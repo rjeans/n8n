@@ -1,0 +1,52 @@
+---
+# Global variables for all hosts
+
+# Project configuration
+project_name: n8n
+environment: production
+
+# System settings
+timezone: America/New_York
+
+# Data directories
+data_base_dir: /mnt/data
+n8n_data_dir: "{{ data_base_dir }}/n8n"
+postgres_data_dir: "{{ data_base_dir }}/postgres"
+backup_dir: "{{ data_base_dir }}/backups"
+
+# Application directories
+app_base_dir: /opt
+n8n_app_dir: "{{ app_base_dir }}/n8n"
+
+# Docker settings
+docker_compose_version: "2.24.0"
+docker_users:
+  - ubuntu
+
+# n8n configuration
+n8n_version: latest
+n8n_host: "n8n.yourdomain.com"  # CHANGE THIS
+n8n_port: 5678
+n8n_protocol: https
+
+# PostgreSQL configuration
+postgres_version: "16-alpine"
+postgres_db: n8n
+postgres_user: n8n
+# postgres_password: defined in vault or group_vars/n8n_servers.yml
+
+# Cloudflare Tunnel
+# cloudflare_tunnel_token: defined in vault or group_vars/n8n_servers.yml
+
+# Backup configuration
+backup_retention_days: 30
+backup_schedule_hour: 2
+backup_schedule_minute: 0
+
+# Security settings
+ssh_port: 22
+firewall_enabled: false  # We use Cloudflare Tunnel, no ports exposed
+
+# Update settings
+auto_updates_enabled: true
+auto_updates_time: "03:00"

@@ -1,0 +1,30 @@
+# Ansible vault files with secrets
+vault.yml
+*.vault
+
+# Inventory with IPs
+inventory.ini
+!inventory.ini.example
+
+# Ansible retry files
+*.retry
+
+# Ansible fact cache
+/tmp/ansible_facts
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor files
+.vscode/
+.idea/
+*.swp
