@@ -15,14 +15,62 @@
 #   ansible-playbook playbook.yml --vault-password-file ~/.vault_pass.txt
 
 # n8n Authentication
+#
+# For NEW deployments:
+#   Generate with: openssl rand -base64 24
+#
+# For MIGRATION from Kubernetes:
+#   Retrieve from existing instance
+#
+# To get password from Kubernetes:
+#   # From secret
+#   kubectl get secret n8n-secret -n <namespace> -o jsonpath='{.data.N8N_BASIC_AUTH_PASSWORD}' | base64 -d
+#
+#   # From pod environment
+#   kubectl exec -n <namespace> <n8n-pod> -- env | grep N8N_BASIC_AUTH_PASSWORD
+#
 n8n_basic_auth_password: "your-secure-password-here"
 
 # n8n Encryption Key (CRITICAL!)
-# Generate with: openssl rand -base64 32
-# If migrating, use the SAME key from your old instance!
+#
+# For NEW deployments:
+#   Generate with: openssl rand -base64 32
+#
+# For MIGRATION from Kubernetes:
+#   Retrieve from existing instance (see commands below)
+#   You MUST use the SAME key or credentials will be unrecoverable!
+#
+# To get key from Kubernetes:
+#   # Option 1: From secret
+#   kubectl get secret n8n-secret -n <namespace> -o jsonpath='{.data.N8N_ENCRYPTION_KEY}' | base64 -d
+#
+#   # Option 2: From pod environment
+#   kubectl exec -n <namespace> <n8n-pod> -- env | grep N8N_ENCRYPTION_KEY
+#
+#   # Option 3: From ConfigMap
+#   kubectl get configmap n8n-config -n <namespace> -o jsonpath='{.data.N8N_ENCRYPTION_KEY}'
+#
 n8n_encryption_key: "your-32-character-encryption-key-here"
 
 # PostgreSQL Password
+#
+# For NEW deployments:
+#   Generate with: openssl rand -base64 24
+#
+# For MIGRATION from Kubernetes:
+#   Retrieve from existing instance (see commands below)
+#
+# To get password from Kubernetes:
+#   # Option 1: From secret
+#   kubectl get secret n8n-postgres-secret -n <namespace> -o jsonpath='{.data.POSTGRES_PASSWORD}' | base64 -d
+#
+#   # Option 2: From n8n pod environment
+#   kubectl exec -n <namespace> <n8n-pod> -- env | grep DB_POSTGRESDB_PASSWORD
+#
+#   # Option 3: List all secrets to find the right one
+#   kubectl get secrets -n <namespace>
+#   kubectl get secret <secret-name> -n <namespace> -o jsonpath='{.data}' | jq
+#
 postgres_password: "your-postgres-password-here"
 
 # Cloudflare Tunnel Token
