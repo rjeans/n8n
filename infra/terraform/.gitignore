@@ -1,0 +1,20 @@
+# Terraform files to ignore
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+.terraform/
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Credentials
+*.json
+!.keep
+
+# OS files
+.DS_Store
+Thumbs.db

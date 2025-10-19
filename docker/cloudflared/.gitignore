@@ -1,0 +1,14 @@
+# Cloudflare Tunnel credentials (NEVER commit these!)
+credentials.json
+*.json
+
+# Certificates
+*.pem
+*.crt
+*.key
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp

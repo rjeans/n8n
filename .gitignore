@@ -1,0 +1,76 @@
+# Environment files with secrets
+.env
+*.env
+!.env.example
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform/
+.terraform.lock.hcl
+
+# Credentials and keys
+*.json
+!package.json
+!package-lock.json
+*.pem
+*.key
+*.crt
+credentials.json
+terraform-key.json
+encryption_key.txt
+
+# Backups and data
+backups/
+data/
+volumes/
+migration_package*/
+*_backup.sql
+*.sql
+*.sql.gz
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*~
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node modules (if you add any scripts)
+node_modules/
+npm-debug.log
+
+# Python (if you add any scripts)
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.env/
+
+# Docker override files (unless tracked)
+docker-compose.override.yml
+
+# Migration artifacts
+migration_package/
+*.tar.gz
+checksums.txt
+
+# Keep structure
+!.gitkeep

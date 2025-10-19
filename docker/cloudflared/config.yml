@@ -1,0 +1,86 @@
+# Cloudflare Tunnel Configuration
+# This file is used if you prefer config-based setup instead of token-based
+
+# Tunnel UUID (get from Cloudflare dashboard)
+tunnel: YOUR_TUNNEL_UUID_HERE
+
+# Credentials file location
+credentials-file: /etc/cloudflared/credentials.json
+
+# Ingress rules - map your domain to the n8n service
+ingress:
+  # Route all traffic for your n8n domain to the n8n container
+  - hostname: n8n.yourdomain.com
+    service: http://n8n:5678
+    originRequest:
+      noTLSVerify: false
+      connectTimeout: 30s
+      tlsTimeout: 10s
+      keepAliveTimeout: 90s
+      keepAliveConnections: 100
+      httpHostHeader: n8n.yourdomain.com
+
+  # Optional: Add webhook-specific route if needed
+  # - hostname: webhooks.yourdomain.com
+  #   service: http://n8n:5678
+  #   originRequest:
+  #     httpHostHeader: webhooks.yourdomain.com
+
+  # Catch-all rule (required) - returns 404 for unmatched requests
+  - service: http_status:404
+
+# Optional: Logging configuration
+# loglevel: info  # debug, info, warn, error
+
+# Optional: Metrics
+# metrics: 0.0.0.0:9090
+
+# Optional: No autoupdate (we use Docker image updates instead)
+# no-autoupdate: true
+
+# ============================================
+# SETUP INSTRUCTIONS
+# ============================================
+#
+# Option 1: Token-based (Recommended - Simpler)
+# ----------------------------------------------
+# 1. Use CLOUDFLARE_TUNNEL_TOKEN in .env file
+# 2. Delete or ignore this config.yml file
+# 3. Token includes all tunnel configuration
+#
+# To get your tunnel token:
+# - Go to Cloudflare Zero Trust Dashboard
+# - Navigate to Access -> Tunnels
+# - Create a new tunnel or select existing
+# - Copy the tunnel token
+#
+# Option 2: Config file-based (Advanced)
+# ----------------------------------------------
+# 1. Create tunnel: cloudflared tunnel create n8n-tunnel
+# 2. Copy the credentials JSON to /etc/cloudflared/
+# 3. Update this file with your tunnel UUID and hostname
+# 4. Create DNS CNAME: n8n.yourdomain.com -> UUID.cfargotunnel.com
+# 5. Mount this config in docker-compose.yml:
+#    volumes:
+#      - ./cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+#      - ./cloudflared/credentials.json:/etc/cloudflared/credentials.json:ro
+#
+# ============================================
+# DNS CONFIGURATION
+# ============================================
+#
+# After creating the tunnel, add CNAME record in Cloudflare DNS:
+# Type: CNAME
+# Name: n8n (or your subdomain)
+# Target: <TUNNEL_UUID>.cfargotunnel.com
+# Proxy: Yes (orange cloud)
+#
+# ============================================
+# SECURITY NOTES
+# ============================================
+#
+# - Credentials file contains sensitive data - keep secure
+# - Never commit credentials.json to git
+# - Use Cloudflare Access for additional authentication layer
+# - Enable Cloudflare WAF rules for additional protection
+# - Monitor tunnel metrics for suspicious activity
