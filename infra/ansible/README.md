@@ -114,10 +114,14 @@ nano group_vars/n8n_servers.yml
 # Create vault for sensitive variables
 ansible-vault create vault.yml
 
-# Add variables following vault.yml.example structure
-# Save and exit
+# Add ALL configuration variables (see vault.yml.example for structure):
+# - n8n_host: your domain (e.g., n8n.yourdomain.com)
+# - n8n_basic_auth_password
+# - n8n_encryption_key
+# - postgres_password
+# - cloudflare_tunnel_token
 
-# Or copy from example
+# Or copy from example and edit
 cp vault.yml.example vault.yml
 ansible-vault encrypt vault.yml
 ansible-vault edit vault.yml  # Edit with your values

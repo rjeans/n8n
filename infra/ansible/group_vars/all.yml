@@ -25,7 +25,7 @@ docker_users:
 
 # n8n configuration
 n8n_version: latest
-n8n_host: "n8n.yourdomain.com"  # CHANGE THIS
+# n8n_host: defined in vault.yml (your domain name)
 n8n_port: 5678
 n8n_protocol: https
 

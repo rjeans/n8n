@@ -73,6 +73,10 @@ n8n_encryption_key: "your-32-character-encryption-key-here"
 #
 postgres_password: "your-postgres-password-here"
 
+# n8n Domain
+# Your n8n domain name (e.g., n8n.yourdomain.com)
+n8n_host: "n8n.yourdomain.com"
+
 # Cloudflare Tunnel Token
 # Get from: https://one.dash.cloudflare.com/ -> Access -> Tunnels
 cloudflare_tunnel_token: "your-cloudflare-tunnel-token-here"
