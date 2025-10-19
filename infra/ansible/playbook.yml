@@ -19,6 +19,9 @@
   become: yes
   gather_facts: yes
 
+  vars_files:
+    - vault.yml
+
   pre_tasks:
     - name: Display deployment information
       debug:
