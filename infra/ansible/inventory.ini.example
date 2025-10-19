@@ -5,10 +5,22 @@
 #
 # Get instance IP from Terraform:
 #   cd ../terraform && terraform output external_ip
+#
+# SSH Key Options:
+#   Option 1: Use 1Password (recommended)
+#     Run: ./scripts/setup-1password-ssh.sh
+#     This will retrieve the key and update this file automatically
+#
+#   Option 2: Use local SSH key
+#     ansible_ssh_private_key_file=~/.ssh/id_rsa
+#
+#   Option 3: Use SSH agent
+#     Remove ansible_ssh_private_key_file line and ensure key is in agent
 
 [n8n_servers]
 # Update this with your actual GCP instance IP
-n8n-server ansible_host=YOUR_GCP_INSTANCE_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+# The SSH key path will be set by setup-1password-ssh.sh or manually configured
+n8n-server ansible_host=YOUR_GCP_INSTANCE_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ansible/n8n-gcp
 
 [n8n_servers:vars]
 # Python interpreter (Ubuntu 22.04 uses python3)

@@ -46,19 +46,53 @@ ansible --version
 
 ## Quick Start
 
-### 1. Update Inventory
+### 1. Setup SSH Key from 1Password (Recommended)
 
 ```bash
 cd infra/ansible
 
-# Edit inventory with your GCP instance IP
+# Retrieve SSH key from 1Password
+./scripts/setup-1password-ssh.sh
+
+# This will:
+# - Retrieve the SSH key from 1Password
+# - Save it to ~/.ssh/ansible/n8n-gcp
+# - Update inventory.ini automatically
+# - Add key to SSH agent
+```
+
+**Prerequisites:**
+- 1Password CLI installed: `brew install 1password-cli`
+- Signed in to 1Password: `op signin`
+- SSH key stored in 1Password with item name: `n8n-gcp-ssh-key`
+
+**Alternative SSH Key Options:**
+
+If not using 1Password:
+```bash
+# Copy inventory example
+cp inventory.ini.example inventory.ini
+
+# Edit with your instance IP and SSH key path
+nano inventory.ini
+# Update: ansible_host=YOUR_IP ansible_ssh_private_key_file=~/.ssh/id_rsa
+```
+
+### 2. Update Inventory with Instance IP
+
+```bash
+# Get IP from Terraform
+cd ../terraform && terraform output external_ip
+
+# Update inventory.ini
+cd ../ansible
 nano inventory.ini
 
 # Update this line:
 n8n-server ansible_host=YOUR_GCP_INSTANCE_IP ansible_user=ubuntu
 ```
 
-### 2. Configure Variables
+### 3. Configure Variables
 
 **Option A: Direct Configuration (Not Recommended for Production)**
 
@@ -89,7 +123,7 @@ ansible-vault encrypt vault.yml
 ansible-vault edit vault.yml  # Edit with your values
 ```
 
-### 3. Test Connection
+### 4. Test Connection
 
 ```bash
 # Test SSH connectivity
@@ -102,7 +136,7 @@ ansible n8n_servers -m ping
 # }
 ```
 
-### 4. Run Playbook
+### 5. Run Playbook
 
 **Without vault:**
 
