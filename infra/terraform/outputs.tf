@@ -13,19 +13,9 @@ output "instance_zone" {
   value       = google_compute_instance.n8n_instance.zone
 }
 
-output "external_ip" {
-  description = "External IP address of the instance"
-  value       = google_compute_instance.n8n_instance.network_interface[0].access_config[0].nat_ip
-}
-
 output "internal_ip" {
   description = "Internal IP address of the instance"
   value       = google_compute_instance.n8n_instance.network_interface[0].network_ip
-}
-
-output "static_ip" {
-  description = "Reserved static IP address (if enabled)"
-  value       = var.use_static_ip ? google_compute_address.n8n_static_ip[0].address : null
 }
 
 output "data_disk_name" {
@@ -38,9 +28,14 @@ output "data_disk_size" {
   value       = google_compute_disk.data_disk.size
 }
 
-output "ssh_command" {
-  description = "SSH command to connect to the instance"
-  value       = "ssh -i ~/.ssh/id_rsa ${var.ssh_user}@${google_compute_instance.n8n_instance.network_interface[0].access_config[0].nat_ip}"
+output "ssh_command_iap" {
+  description = "SSH command to connect via IAP"
+  value       = "gcloud compute ssh ${google_compute_instance.n8n_instance.name} --zone=${google_compute_instance.n8n_instance.zone} --tunnel-through-iap"
+}
+
+output "ssh_command_alias" {
+  description = "SSH command using configured alias"
+  value       = "ssh n8n"
 }
 
 output "instance_self_link" {
@@ -67,10 +62,17 @@ output "quick_start_guide" {
   description = "Quick start commands for deployment"
   value       = <<-EOT
 
-    SSH into instance:
-    ssh -i ~/.ssh/id_rsa ${var.ssh_user}@${google_compute_instance.n8n_instance.network_interface[0].access_config[0].nat_ip}
+    SSH into instance via IAP:
+    gcloud compute ssh ${google_compute_instance.n8n_instance.name} --zone=${google_compute_instance.n8n_instance.zone} --tunnel-through-iap
 
+    Or using SSH alias:
+    ssh n8n
+
+    Internal IP: ${google_compute_instance.n8n_instance.network_interface[0].network_ip}
     Data disk mounted at: /mnt/data
+
+    Note: No public IP - SSH access via Google Identity-Aware Proxy only
+    See docs/IAP-SETUP.md for setup instructions
 
     Next steps:
     1. Install Docker: curl -fsSL https://get.docker.com | sh

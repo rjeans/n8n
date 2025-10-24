@@ -78,18 +78,9 @@ variable "ssh_public_key" {
   sensitive   = true
 }
 
-variable "ssh_source_ranges" {
-  description = "List of CIDR ranges allowed to SSH (empty list allows from anywhere)"
-  type        = list(string)
-  default     = []
-
-  validation {
-    condition = alltrue([
-      for cidr in var.ssh_source_ranges : can(cidrhost(cidr, 0))
-    ]) || length(var.ssh_source_ranges) == 0
-    error_message = "All SSH source ranges must be valid CIDR notation (e.g., '1.2.3.4/32')."
-  }
-}
+# Note: my_ip and ssh_source_ranges variables removed in Phase 2
+# SSH access is now exclusively via Google Identity-Aware Proxy (IAP)
+# No IP whitelisting needed - access controlled via GCP IAM permissions
 
 variable "use_static_ip" {
   description = "Whether to use a static external IP address"

@@ -63,14 +63,13 @@ resource "google_compute_instance" "n8n_instance" {
 
   network_interface {
     network = "default"
-
-    access_config {
-      # Ephemeral public IP
-    }
+    # No access_config block = no public IP
+    # SSH access via Identity-Aware Proxy only
   }
 
   metadata = {
-    ssh-keys = "${var.ssh_user}:${var.ssh_public_key}"
+    ssh-keys           = "${var.ssh_user}:${var.ssh_public_key}"
+    serial-port-enable = "TRUE"  # Enable serial console for emergency access
   }
 
   # Startup script to format and mount data disk on first boot
@@ -122,6 +121,7 @@ resource "google_compute_instance" "n8n_instance" {
 }
 
 # Firewall rule for SSH access via Identity-Aware Proxy (IAP)
+# This is the ONLY SSH access method - no public IP, no direct SSH
 resource "google_compute_firewall" "allow_ssh_iap" {
   name    = "${var.instance_name}-allow-ssh-iap"
   network = "default"
@@ -138,24 +138,6 @@ resource "google_compute_firewall" "allow_ssh_iap" {
   target_tags = ["n8n"]
 
   description = "Allow SSH via Google Identity-Aware Proxy"
-}
-
-# Firewall rule for direct SSH access (temporary - will be removed in Phase 2)
-resource "google_compute_firewall" "allow_ssh_direct" {
-  name    = "${var.instance_name}-allow-ssh-direct"
-  network = "default"
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  # Combine my_ip with any additional ssh_source_ranges
-  source_ranges = concat([var.my_ip], var.ssh_source_ranges)
-
-  target_tags = ["n8n"]
-
-  description = "Allow direct SSH access (temporary - backup during IAP transition)"
 }
 
 # Static IP reservation (optional, for stable external access)
