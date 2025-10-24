@@ -25,10 +25,10 @@ resource "google_project_service" "compute_api" {
 
 # Create a persistent disk for data storage
 resource "google_compute_disk" "data_disk" {
-  name  = "${var.instance_name}-data"
-  type  = "pd-standard"
-  zone  = var.zone
-  size  = var.data_disk_size_gb
+  name = "${var.instance_name}-data"
+  type = "pd-standard"
+  zone = var.zone
+  size = var.data_disk_size_gb
 
   labels = {
     environment = var.environment
@@ -121,9 +121,9 @@ resource "google_compute_instance" "n8n_instance" {
   ]
 }
 
-# Firewall rule for SSH access (limited to your IP if specified)
-resource "google_compute_firewall" "allow_ssh" {
-  name    = "${var.instance_name}-allow-ssh"
+# Firewall rule for SSH access via Identity-Aware Proxy (IAP)
+resource "google_compute_firewall" "allow_ssh_iap" {
+  name    = "${var.instance_name}-allow-ssh-iap"
   network = "default"
 
   allow {
@@ -131,31 +131,31 @@ resource "google_compute_firewall" "allow_ssh" {
     ports    = ["22"]
   }
 
-  # If ssh_source_ranges is empty, allow from anywhere (0.0.0.0/0)
-  # Otherwise, restrict to specified IP ranges
-  source_ranges = length(var.ssh_source_ranges) > 0 ? var.ssh_source_ranges : ["0.0.0.0/0"]
+  # Google Identity-Aware Proxy IP range
+  # This is a fixed range that IAP uses globally
+  source_ranges = ["35.235.240.0/20"]
 
   target_tags = ["n8n"]
 
-  description = "Allow SSH access to n8n instance"
+  description = "Allow SSH via Google Identity-Aware Proxy"
 }
 
-# Firewall rule to allow health checks (if needed for monitoring)
-resource "google_compute_firewall" "allow_health_checks" {
-  name    = "${var.instance_name}-allow-health-checks"
+# Firewall rule for direct SSH access (temporary - will be removed in Phase 2)
+resource "google_compute_firewall" "allow_ssh_direct" {
+  name    = "${var.instance_name}-allow-ssh-direct"
   network = "default"
 
   allow {
     protocol = "tcp"
-    ports    = ["80", "443"]
+    ports    = ["22"]
   }
 
-  # Google Cloud health check IP ranges
-  source_ranges = ["35.191.0.0/16", "130.211.0.0/22"]
+  # Combine my_ip with any additional ssh_source_ranges
+  source_ranges = concat([var.my_ip], var.ssh_source_ranges)
 
   target_tags = ["n8n"]
 
-  description = "Allow Google Cloud health checks"
+  description = "Allow direct SSH access (temporary - backup during IAP transition)"
 }
 
 # Static IP reservation (optional, for stable external access)
