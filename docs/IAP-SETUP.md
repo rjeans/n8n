@@ -1,11 +1,11 @@
 # Google Identity-Aware Proxy (IAP) Setup for SSH Access
 
-This document describes how to set up secure SSH access to the n8n GCP instance using Google Identity-Aware Proxy (IAP) without requiring a public IP address.
+This document describes how to set up secure SSH access to the n8n GCP instance using Google Identity-Aware Proxy (IAP).
 
 ## Overview
 
 Identity-Aware Proxy (IAP) provides secure access to your GCP VM instances through Google's private network. With IAP:
-- **No public IP needed** - VM has only private IP
+- **IAP-only SSH** - No direct SSH access via public IP
 - **No VPN required** - Works from anywhere
 - **Identity-based access** - Uses Google account authentication + IAM
 - **Encrypted tunnel** - Traffic goes through Google's backbone network
@@ -15,10 +15,19 @@ Identity-Aware Proxy (IAP) provides secure access to your GCP VM instances throu
 ## Architecture
 
 ```
+Internet → Public IP (outbound only - all inbound ports blocked)
+         → Cloudflare Tunnel → n8n:5678 (HTTPS web access)
+
 Your Mac → Google IAP (iap.googleapis.com)
            ↓ (encrypted tunnel through Google's private network)
-           GCP VPC → n8n-server (private IP only)
+           GCP VPC → n8n-server (10.x.x.x) → SSH:22
 ```
+
+**Key Security Features:**
+- Public IP exists but **ONLY for outbound** internet (apt, curl, etc.)
+- **ONLY IAP firewall rule** allows inbound SSH (35.235.240.0/20)
+- **No direct SSH** possible via public IP (connection will timeout)
+- Zero public attack surface for SSH
 
 ## Prerequisites
 

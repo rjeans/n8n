@@ -13,6 +13,11 @@ output "instance_zone" {
   value       = google_compute_instance.n8n_instance.zone
 }
 
+output "external_ip" {
+  description = "External IP address (for outbound internet only - no inbound ports open)"
+  value       = try(google_compute_instance.n8n_instance.network_interface[0].access_config[0].nat_ip, "No public IP")
+}
+
 output "internal_ip" {
   description = "Internal IP address of the instance"
   value       = google_compute_instance.n8n_instance.network_interface[0].network_ip
@@ -71,7 +76,7 @@ output "quick_start_guide" {
     Internal IP: ${google_compute_instance.n8n_instance.network_interface[0].network_ip}
     Data disk mounted at: /mnt/data
 
-    Note: No public IP - SSH access via Google Identity-Aware Proxy only
+    Note: SSH access via Google Identity-Aware Proxy only (not via public IP)
     See docs/IAP-SETUP.md for setup instructions
 
     Next steps:

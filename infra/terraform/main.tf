@@ -63,8 +63,12 @@ resource "google_compute_instance" "n8n_instance" {
 
   network_interface {
     network = "default"
-    # No access_config block = no public IP
-    # SSH access via Identity-Aware Proxy only
+
+    # Ephemeral public IP for outbound internet access
+    # All inbound traffic blocked by firewall (IAP SSH only)
+    access_config {
+      # Ephemeral public IP
+    }
   }
 
   metadata = {
@@ -140,18 +144,5 @@ resource "google_compute_firewall" "allow_ssh_iap" {
   description = "Allow SSH via Google Identity-Aware Proxy"
 }
 
-# Static IP reservation (optional, for stable external access)
-resource "google_compute_address" "n8n_static_ip" {
-  count = var.use_static_ip ? 1 : 0
-
-  name   = "${var.instance_name}-static-ip"
-  region = var.region
-
-  labels = {
-    environment = var.environment
-    application = "n8n"
-  }
-}
-
-# Note: If using static IP, you would need to modify the instance network_interface
-# This is left as a manual step or can be enhanced with conditional logic
+# Note: Cloud NAT not needed - VM has public IP for outbound internet
+# All inbound traffic blocked by firewall (IAP SSH only)

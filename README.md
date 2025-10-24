@@ -34,7 +34,8 @@ This repository contains all the infrastructure-as-code and deployment automatio
 - **Automated Provisioning**: Ansible playbooks for server configuration and deployment
 - **Container Orchestration**: Docker Compose for simple, reliable deployments
 - **Secure Ingress**: Cloudflare Tunnel (no exposed ports, no firewall management)
-- **Secure SSH Access**: Google Identity-Aware Proxy (IAP) with no public IP required
+- **Secure SSH Access**: Google Identity-Aware Proxy (IAP) - SSH via encrypted tunnel only
+- **Zero SSH Attack Surface**: Public IP exists for outbound only, all inbound SSH blocked
 - **Free Tier Eligible**: Uses GCP e2-micro instance (within free tier limits)
 - **Automated Migration**: Scripts to migrate from Kubernetes to GCP
 - **Persistent Storage**: Docker volumes for database and n8n data
